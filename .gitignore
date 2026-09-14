@@ -1,0 +1,19 @@
+# Python bytecode / build artifacts
+__pycache__/
+*.py[cod]
+*$py.class
+
+# Distribution / packaging
+build/
+dist/
+*.egg-info/
+
+# Virtual environments
+.venv/
+venv/
+env/
+
+# Editor / OS metadata
+.vscode/
+.idea/
+.DS_Store
