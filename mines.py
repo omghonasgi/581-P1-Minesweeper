@@ -17,10 +17,13 @@ class MineManager:
         self.rng = rng or Random()
         self.mine_count = 0
 
-    def place_mines(self, first_click: tuple[int, str]) -> None:
-        """Randomly place mines outside the first click's adjacent cells."""
+    def place_mines(self, first_click: tuple[int, str], mine_count: int) -> None:
+        """Place the requested number of mines outside the protected area."""
+        if not isinstance(mine_count, int) or not 10 <= mine_count <= 20:
+            raise ValueError("mine_count must be an integer from 10 to 20")
+
         positions = list(self.board.iter_positions())
-        self.mine_count = self.rng.randint(10, 20)
+        self.mine_count = mine_count
         
         # Define the protected area: the first click and its adjacent cells
         protected_positions = {
