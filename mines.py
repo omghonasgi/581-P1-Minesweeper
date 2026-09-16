@@ -3,12 +3,13 @@ Author: Adam Darst
 Date: 2026-09-15
 Module: mines.py
 Outside sources: GPT-5.6 
-Description: Module will place mines on the board and calculate adjacent mine counts for each cell.
+Description: Module will place mines on the board and calculate adjacent mine counts for each non-mine cell.
     It will use the board class representing the game state and will modify it in place.
+    The class will have to take in the first click position to avoid placing mines there and in adjacent cells.
 """
 
 from random import Random
-from board import Board, Cell
+from board import Board
 
 class MineManager:
     def __init__(self, board: Board, rng: Random | None = None) -> None:
@@ -48,9 +49,11 @@ class MineManager:
     def calculate_numbers(self) -> None:
         """Calculate adjacent mine counts for every non-mine cell."""
         for row, col, cell in self.board.iter_cells():
+            # Skip mine cells as they do not need a count
             if cell.is_mine:
                 continue
-
+            
+            # Calculate the number of adjacent mines
             adjacent_mines = sum(
                 self.board.get_cell(neighbor_row, neighbor_col).is_mine
                 for neighbor_row, neighbor_col in self.get_adjacent_cells(row, col)
