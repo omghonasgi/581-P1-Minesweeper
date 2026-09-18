@@ -7,20 +7,6 @@ Description: Reads and validates everything the player types. Re-prompts on
     invalid input instead of crashing, then hands clean values to game logic.
 
 This module only parses input.
-
-Functions:
-    parse_cell(text) -> tuple[int, str] | None
-        Input: str like "D5" or "d 5". Output: (row, col) in board.py's
-        format (row 0-indexed int, col letter A-J), or None if invalid.
-    parse_action(text) -> str | None
-        Input: str like "1" or "reveal". Output: "reveal", "flag", "unflag",
-        "quit", or None if invalid.
-    get_mine_count() -> int | None
-        Prompts until the player enters 10-20. Output: the count, or None
-        if the player quits (Ctrl+C / Ctrl+D).
-    get_move() -> tuple[str, int | None, str | None]
-        Prompts for an action, then a cell. Output: ("reveal"/"flag"/"unflag",
-        row, col) or ("quit", None, None).
 """
 
 from typing import Optional

@@ -9,22 +9,6 @@ Description: Terminal rendering for Minesweeper. Prints the 10x10 grid with
 Inputs: None.
 Outputs: it READS board state and never modifies it.
 
-
-Functions:
-    cell_glyph(cell) -> str
-        Input: a Cell from board.py. Output: one-character symbol for it.
-    render_board(board) -> None
-        Input: a Board from board.py. Output: prints the labeled grid.
-    render_status(mines_remaining, status) -> None
-        Input: int remaining mines (total mines - flags), str status such as
-        "Playing", "Game Over: Loss", or "Victory". Output: prints both lines.
-    render_menu() -> None
-        Output: prints the numbered action menu.
-    render_message(message) -> None
-        Input: str feedback from game logic (e.g. "That cell is flagged").
-        Output: prints it, visually separated from the board.
-    render(board, mines_remaining, status) -> None
-        Convenience wrapper: board + status in one call, once per turn.
 """
 
 from board import Board, Cell, COLUMN_LETTERS
