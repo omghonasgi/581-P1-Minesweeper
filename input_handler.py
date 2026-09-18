@@ -1,0 +1,147 @@
+"""
+Author: Axel Bengoa
+Date: 2026-09-16
+Module: input_handler.py
+Outside sources: Claude Code
+Description: Reads and validates everything the player types. Re-prompts on
+    invalid input instead of crashing, then hands clean values to game logic.
+
+This module only parses input.
+
+Functions:
+    parse_cell(text) -> tuple[int, str] | None
+        Input: str like "D5" or "d 5". Output: (row, col) in board.py's
+        format (row 0-indexed int, col letter A-J), or None if invalid.
+    parse_action(text) -> str | None
+        Input: str like "1" or "reveal". Output: "reveal", "flag", "unflag",
+        "quit", or None if invalid.
+    get_mine_count() -> int | None
+        Prompts until the player enters 10-20. Output: the count, or None
+        if the player quits (Ctrl+C / Ctrl+D).
+    get_move() -> tuple[str, int | None, str | None]
+        Prompts for an action, then a cell. Output: ("reveal"/"flag"/"unflag",
+        row, col) or ("quit", None, None).
+"""
+
+from typing import Optional
+
+from board import COLUMN_LETTERS
+from display import render_menu
+
+MIN_MINES = 10
+MAX_MINES = 20
+NUM_ROWS = 10
+
+# Menu numbers and typed words both map to the same action (original).
+ACTION_ALIASES = {
+    "1": "reveal", "reveal": "reveal", "r": "reveal",
+    "2": "flag", "flag": "flag", "f": "flag",
+    "3": "unflag", "unflag": "unflag", "u": "unflag",
+    "4": "quit", "quit": "quit", "q": "quit", "exit": "quit",
+}
+
+BACK_WORDS = {"b", "back"}
+
+
+def _read(prompt: str) -> Optional[str]:
+    """Wrapper around input() that returns None on Ctrl+C / Ctrl+D.
+
+    Without this, those keys raise exceptions and crash the game, which
+    counts against stress testing.
+    """
+    try:
+        return input(prompt)
+    except (EOFError, KeyboardInterrupt):
+        print()
+        return None
+
+
+def parse_cell(text: str) -> Optional[tuple[int, str]]:
+    """Turn "D5" into (4, "D"); return None for anything invalid."""
+    cleaned = text.strip().upper().replace(" ", "")
+    if len(cleaned) < 2:
+        return None
+    letter, number = cleaned[0], cleaned[1:]
+    if letter not in COLUMN_LETTERS:
+        return None
+    # isdigit() rejects "-1", "5.0", "5a", etc. before int() can throw.
+    if not number.isdigit():
+        return None
+    row = int(number)
+    if not 1 <= row <= NUM_ROWS:
+        return None
+    # Players count rows from 1; board.py counts from 0.
+    return row - 1, letter
+
+
+def parse_action(text: str) -> Optional[str]:
+    """Map menu input to an action name, or None if unrecognized."""
+    return ACTION_ALIASES.get(text.strip().lower())
+
+
+def get_mine_count() -> Optional[int]:
+    """Prompt until the player picks a mine count from 10 to 20."""
+    while True:
+        raw = _read(f"How many mines? ({MIN_MINES}-{MAX_MINES}): ")
+        if raw is None:
+            return None
+        raw = raw.strip()
+        if raw.isdigit() and MIN_MINES <= int(raw) <= MAX_MINES:
+            return int(raw)
+        print(f"Please enter a whole number from {MIN_MINES} to {MAX_MINES}.")
+
+
+def _get_action() -> str:
+    """Show the menu and prompt until a valid action is chosen."""
+    render_menu()
+    while True:
+        raw = _read("Choose 1-4: ")
+        if raw is None:
+            return "quit"
+        action = parse_action(raw)
+        if action:
+            return action
+        print("Invalid choice. Enter 1, 2, 3, or 4.")
+
+
+def _get_cell(action: str) -> Optional[tuple[int, str]]:
+    """Prompt for a cell; None means the player backed out."""
+    while True:
+        raw = _read(f"Cell to {action} (e.g. D5), or 'b' to go back: ")
+        if raw is None or raw.strip().lower() in BACK_WORDS:
+            return None
+        cell = parse_cell(raw)
+        if cell:
+            return cell
+        print("Invalid cell. Use a column A-J followed by a row 1-10, like D5.")
+
+
+def get_move() -> tuple[str, Optional[int], Optional[str]]:
+    """Get one complete move from the player.
+
+    Loops so that backing out of the cell prompt returns to the menu
+    rather than submitting a half-finished move.
+    """
+    while True:
+        action = _get_action()
+        if action == "quit":
+            return "quit", None, None
+        cell = _get_cell(action)
+        if cell is not None:
+            row, col = cell
+            return action, row, col
+
+
+# ----------------------------------------------------------------------
+# Manual demo: `python input_handler.py` lets you try the prompts and see
+# exactly what game logic will receive. Not used by the real game.
+# ----------------------------------------------------------------------
+if __name__ == "__main__":
+    count = get_mine_count()
+    print(f"get_mine_count() -> {count}")
+    if count is not None:
+        while True:
+            move = get_move()
+            print(f"get_move() -> {move}")
+            if move[0] == "quit":
+                break
