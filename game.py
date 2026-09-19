@@ -23,10 +23,18 @@ class Game:
         self.state: str = "PLAYING"  # valid states are "PLAYING", "VICTORY", "LOSS"
         self.first_move: bool = True
 
-    def process_move(self, command: str, target: Tuple[int, str], reveal_func=None) -> None:
+    def process_move(
+        self,
+        command: str,
+        target: Tuple[int, str],
+        mine_count: int,
+        reveal_func=None,
+    ) -> None:
         """processes a move command from the UI and evaluates state updates
         :param command: action string ('reveal', 'flag', 'unflag')
         :param target: row and column tuple
+        :param mine_count: user-selected mine count (10-20); used only on the
+            first reveal to seed the minefield and the flag counter
         :param reveal_func: Reference to board.reveal implementation
         """
         if self.state != "PLAYING":
@@ -41,11 +49,9 @@ class Game:
 
             # Ensure safe first click by delaying mine generation
             if self.first_move:
-                self.mine_manager.place_mines(first_click=(row, col))
+                self.mine_manager.place_mines((row, col), mine_count)
                 self.mine_manager.calculate_numbers()
-                self.flag_manager = FlagManager(
-                    self.board, self.mine_manager.mine_count
-                )
+                self.flag_manager = FlagManager(self.board, mine_count)
                 self.first_move = False
 
             # Delegate cell uncovering to Marcos's reveal function/method
