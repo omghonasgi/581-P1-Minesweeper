@@ -1,5 +1,11 @@
 # 581-P1-Minesweeper
 
+# Running the program
+Minesweeper uses the command line interface, and must be ran on a machine that has python downloaded.
+Use the command:
+  py index.py
+The program will then ask you how many mines you would like to start with, and the game begins.
+
 ## Board System - Om Ghonasgi
 
 The board is defined in `board.py` and provides the shared data model that every other module (mines, reveal, flags, display) reads from and writes to. It is intentionally state-only: no mine placement, no user input, no win/loss logic.
