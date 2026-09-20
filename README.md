@@ -98,6 +98,34 @@ The UI is responsible for converting user input like `D5`. The reveal system mus
 
 
 
+## Reveal System - Marcos Lepage
+
+Uncovering is handled by the `RevealManager` class in `reveal.py`. It never prints; every call returns a `RevealResult` so `game.py` and `display.py` decide what the player sees.
+
+Create it using the board, the user-selected number of mines, and the mine manager:
+
+```python
+reveal_manager = RevealManager(board, mine_count, mine_manager)
+```
+
+`mine_count` must be the same number used when placing mines and creating the `FlagManager`.
+
+### Functions
+- `reveal(row, col)` - Uncovers a cell and returns a `RevealResult`. Cascades automatically through blank cells.
+- `reveal_all_mines()` - Uncovers every still-covered mine and returns their positions.
+
+### RevealResult
+- `outcome` - `SAFE`, `MINE`, `ALREADY_REVEALED`, `FLAGGED`, or `INVALID`.
+- `revealed` - Every `(row, col)` uncovered by the call, in order.
+- `adjacent_mines` - The requested cell's number, or `None` if nothing was uncovered or it was a mine.
+- `hit_mine` - `True` only when a mine was uncovered.
+- `reason` - Why a move was rejected, for the UI to show.
+
+A cell with adjacent mines uncovers only itself. A blank cell uncovers its neighbors, and each blank neighbor cascades in turn, until the opening reaches numbered cells on every side. Flagged cells stay covered, so `get_flags_remaining()` stays accurate. A bad position returns `INVALID` instead of raising, so the UI can re-prompt.
+
+`RevealManager` can also generate the minefield on the first reveal to guarantee a safe first click, but `game.py` does this itself and `index.py` sets `first_reveal_done = True`, so that path and `reveal_all_mines()` are unused in the assembled game.
+
+
 ## Game Logic - Jal Maru
 
 The `game.py` module manages the overall game lifecycle, rule enforcement, and state transitions for Minesweeper. It acts as the central coordinator connecting the board data structure (`Board`), mine placement (`MineManager`), flagging mechanics (`FlagManager`), and uncovering logic (`reveal`).
