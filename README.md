@@ -69,6 +69,25 @@ Development helper:
 - `print_board()` - Print the whole board to stdout using single-character glyphs (`X` covered, `F` flagged, `O` uncovered-zero, `1`-`8` for adjacent-mine counts, `*` for an uncovered mine). Used for debugging; the real game uses `display.render` instead.
 
 
+## Mine Placement - Adam Darst
+
+The `mines.py` module defines the `MineManager` class, which manages mine placement and adjacent-mine calculations for the board.
+
+### Main Responsibilities
+
+- Places the requested number of mines randomly on the board.
+- Protects the first clicked cell and its neighboring cells from containing mines.
+- Clears existing mine placements before generating a new layout.
+- Calculates the number of adjacent mines for every non-mine cell.
+- Updates the shared `Board` object in place.
+
+### Main Methods
+
+- `place_mines(first_click, mine_count)` - Places between 10 and 20 mines while protecting the first-click area.
+- `get_adjacent_cells(row, col)` - Returns the valid neighboring positions around a cell.
+- `calculate_numbers()` - Computes and stores adjacent-mine counts for all non-mine cells.
+
+
 ## Flagging System - Arin Shah
 
 Flagging is handled by the `FlagManager` class in `flags.py`.
