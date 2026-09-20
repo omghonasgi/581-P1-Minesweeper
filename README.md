@@ -1,6 +1,6 @@
 # 581-P1-Minesweeper
 
-## Board System
+## Board System - Om Ghonasgi
 
 The board is defined in `board.py` and provides the shared data model that every other module (mines, reveal, flags, display) reads from and writes to. It is intentionally state-only: no mine placement, no user input, no win/loss logic.
 
@@ -61,7 +61,7 @@ Development helper:
 - `print_board()` - Print the whole board to stdout using single-character glyphs (`X` covered, `F` flagged, `O` uncovered-zero, `1`-`8` for adjacent-mine counts, `*` for an uncovered mine). Used for debugging; the real game uses `display.render` instead.
 
 
-## Flagging System
+## Flagging System - Arin Shah
 
 Flagging is handled by the `FlagManager` class in `flags.py`.
 
@@ -90,7 +90,7 @@ The UI is responsible for converting user input like `D5`. The reveal system mus
 
 
 
-## Game Logic
+## Game Logic - Jal Maru
 
 The `game.py` module manages the overall game lifecycle, rule enforcement, and state transitions for Minesweeper. It acts as the central coordinator connecting the board data structure (`Board`), mine placement (`MineManager`), flagging mechanics (`FlagManager`), and uncovering logic (`reveal`).
 
