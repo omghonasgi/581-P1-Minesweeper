@@ -1,5 +1,66 @@
 # 581-P1-Minesweeper
 
+## Board System
+
+The board is defined in `board.py` and provides the shared data model that every other module (mines, reveal, flags, display) reads from and writes to. It is intentionally state-only: no mine placement, no user input, no win/loss logic.
+
+The module exports two classes and one constant:
+
+- `Cell` - state for a single square.
+- `Board` - the 10x10 grid of `Cell`s plus accessor methods.
+- `COLUMN_LETTERS` - the string `"ABCDEFGHIJ"` used for column labels.
+
+### Cell
+
+Each `Cell` tracks the four state flags called out in the spec:
+
+- `is_mine` - whether the cell hides a mine.
+- `is_covered` - whether the cell is still hidden from the player.
+- `is_flagged` - whether the player has flagged it.
+- `adjacent_mines` - number of neighboring mines (0-8), set by mine-placement logic.
+
+Every cell starts covered, unflagged, non-mine, with `adjacent_mines = 0`.
+
+### Board
+
+Create a fresh 10x10 board with no arguments:
+
+```python
+board = Board()
+```
+
+The board addresses cells using **0-indexed rows** (`0`-`9`, matching Python) and **letter columns** (`"A"`-`"J"`, matching the player-facing labels). If the UI receives input like `D5`, it should convert to:
+
+```python
+row = 4      # 5 - 1
+col = "D"
+board.get_cell(row, col)
+```
+
+Column letters are case-insensitive on input; `get_cell(0, "a")` and `get_cell(0, "A")` return the same cell.
+
+### Methods
+
+Position validation and column conversion:
+- `is_valid_position(row, col_index)` - True if a 0-indexed `(row, col_index)` is on the board. `col_index` here is an integer, used internally after a letter has been converted.
+- `col_letter_to_index(letter)` - Convert `"A"`-`"J"` to `0`-`9`. Raises `ValueError` on anything else.
+- `col_index_to_letter(index)` - Convert `0`-`9` back to `"A"`-`"J"`.
+
+Cell access:
+- `get_cell(row, col)` - Return the `Cell` at `(row, col)`. Raises `ValueError` on a bad column letter, `IndexError` on a bad row.
+- `set_cell(row, col, *, is_mine=None, is_covered=None, is_flagged=None, adjacent_mines=None)` - Update only the fields explicitly passed as keyword arguments; everything else is left untouched. This lets other modules change one attribute at a time without clobbering the rest.
+
+Geometry:
+- `neighbors(row, col)` - Return up to eight `(row, col_letter)` neighbor positions. Corners return 3, edges 5, interior cells 8.
+
+Iteration helpers:
+- `iter_positions()` - Yield every `(row, col_letter)` on the board (100 tuples).
+- `iter_cells()` - Yield every `(row, col_letter, cell)` triple; the `cell` is the live reference, so mutations persist.
+
+Development helper:
+- `print_board()` - Print the whole board to stdout using single-character glyphs (`X` covered, `F` flagged, `O` uncovered-zero, `1`-`8` for adjacent-mine counts, `*` for an uncovered mine). Used for debugging; the real game uses `display.render` instead.
+
+
 ## Flagging System
 
 Flagging is handled by the `FlagManager` class in `flags.py`.
