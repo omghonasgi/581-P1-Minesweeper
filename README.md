@@ -124,3 +124,47 @@ The `game.py` module manages the overall game lifecycle, rule enforcement, and s
   Sets the state to `"VICTORY"` or `"LOSS"`. If `won=False`, executes `_reveal_all_mines()`.
 - `_reveal_all_mines() -> None`:  
   Internal helper to set `is_covered = False` for all cells where `is_mine == True`.
+
+  ## Terminal UI - Axel Bengoa
+
+The terminal interface is split into two modules: `display.py` handles all output, and `input_handler.py` handles all input. Neither contains game rules. `display.py` only reads board state and never modifies it; `input_handler.py` only parses text and never decides whether a move is legal. Rules stay in `game.py`, `reveal.py`, and `flags.py`.
+
+### Display
+
+`display.py` renders the 10x10 grid with column letters A-J across the top and row numbers 1-10 down the side. Cells are drawn with single-character glyphs:
+
+- `#` - covered.
+- `F` - flagged.
+- `1`-`8` - uncovered, showing the adjacent-mine count.
+- ` ` (blank) - uncovered with zero adjacent mines.
+- `*` - a mine, visible only after a loss uncovers them.
+
+The glyphs are module-level constants, so changing the look of the board is a single edit. `display.py` replaces `board.print_board()`, which uses different glyphs and exists only for debugging.
+
+### Display Functions
+- `cell_glyph(cell)` - Return the glyph for a `Cell`. Takes the cell object, not a position.
+- `render_board(board)` - Print the labeled grid.
+- `render_status(mines_remaining, status)` - Print the remaining mine count and the game status.
+- `render_menu()` - Print the numbered action menu.
+- `render_message(message)` - Print one feedback line, prefixed with `>>`.
+- `render(board, mines_remaining, status)` - Calls `render_board` and `render_status` together. This is what the game loop uses each turn.
+
+### Input
+
+`input_handler.py` prompts the player and re-prompts on anything invalid, so no malformed input reaches `game.py`.
+
+### Input Functions
+- `parse_cell(text)` - Convert `"D5"` into `(4, "D")`. Returns `None` if invalid. Accepts lowercase and spaces, so `"d5"` and `"d 5"` also work.
+- `parse_action(text)` - Convert a menu selection into an action name. Accepts the number, the word, or the first letter. Returns `"reveal"`, `"flag"`, `"unflag"`, `"quit"`, or `None`.
+- `get_mine_count()` - Prompt until the player enters a number from 10 to 20.
+- `get_move()` - Prompt for an action and a cell. Returns `("reveal", 4, "D")` or `("quit", None, None)`.
+
+Entering `b` at the cell prompt returns to the menu. `Ctrl+C` and `Ctrl+D` are caught and treated as quitting, so the game exits cleanly instead of crashing.
+
+The board uses **0-indexed rows** and **letter columns** while the player types `D5`. `parse_cell` handles that conversion, so values from `get_move()` can be passed straight to `game.process_move()`:
+
+```python
+action, row, col = get_move()   # ("reveal", 4, "D")
+game.process_move(action, (row, col), reveal_func=reveal)
+```
+
