@@ -2,8 +2,10 @@
 
 # Running the program
 Minesweeper uses the command line interface, and must be ran on a machine that has python downloaded.
+
 Use the command:
   py index.py
+  
 The program will then ask you how many mines you would like to start with, and the game begins.
 
 ## Board System - Om Ghonasgi
