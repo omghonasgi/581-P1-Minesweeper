@@ -1,9 +1,12 @@
-"""Entry point for the Minesweeper game.
-
-Wires together the game controller, reveal cascade, input, and display
-modules into a single terminal game loop.
+"""
+Author: Om Ghonasgi
+Date: 2026-09-19
+Module: index.py
+Outside sources: Cursor with Claude Opus 4.7 Agent
+Description: Entry point for the Minesweeper game. Wires together the game controller, reveal cascade, input, and display modules into a single terminal game loop.
 """
 
+# imports from other modules made by the team members
 from display import render, render_message
 from game import Game
 from input_handler import get_mine_count, get_move
@@ -21,6 +24,7 @@ STATUS_LABEL = {
 def main() -> None:
     print("Welcome to Minesweeper!")
 
+    # edge case for when the user quits before entering the mine count.
     mine_count = get_mine_count()
     if mine_count is None:
         # Player hit Ctrl+C / Ctrl+D at the mine-count prompt.
@@ -39,6 +43,7 @@ def main() -> None:
         reveal_manager.first_reveal_done = True
         reveal_manager.reveal(row, col)
 
+    # Game loop, runs by getting how many flags are left, rendering the board, and getting the action from the user.
     while game.state == "PLAYING":
         flags_left = (
             game.flag_manager.get_flags_remaining()
@@ -67,5 +72,6 @@ def main() -> None:
         render_message("You hit a mine. Better luck next time!")
 
 
+# main loop
 if __name__ == "__main__":
     main()
